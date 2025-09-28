@@ -61,6 +61,7 @@ public class OrderService {
     private Order prepareOrder(OrderRequest orderRequest) {
         Order order = orderMapper.toEntity(orderRequest);
         order.setItems(itemService.findAllItemsByIds(orderRequest.itemIds));
+        order.setUserId(orderRequest.getUserId());
         order.setCreatedAt(LocalDateTime.now());
         order.setUpdatedAt(order.getCreatedAt());
         order.setStatus(OrderStatus.PROCESSING);
