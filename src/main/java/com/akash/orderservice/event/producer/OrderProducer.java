@@ -31,28 +31,32 @@ public class OrderProducer {
         try {
             OrderCreatedEvent event = prepareOrderEvent(order);
             ProducerRecord<String, OrderCreatedEvent> record = new ProducerRecord<>(TOPIC, event);
-
-            String correlationId = MDC.get(CORRELATION_ID_HEADER);
-            if (correlationId == null) {
-                correlationId = UUID.randomUUID().toString();
-            }
-            record.headers().add(CORRELATION_ID_HEADER, correlationId.getBytes(StandardCharsets.UTF_8));
-            kafkaTemplate.send(TOPIC, event);
+            handleMDC(record);
+            kafkaTemplate.send(record);
             log.info("Published order to topic: order_created {}", event);
         } finally {
             MDC.clear();
         }
     }
 
+    private static void handleMDC(ProducerRecord<String, OrderCreatedEvent> record) {
+        String correlationId = MDC.get(CORRELATION_ID_HEADER);
+        if (correlationId == null) {
+            correlationId = UUID.randomUUID().toString();
+        }
+        record.headers().add(CORRELATION_ID_HEADER, correlationId.getBytes(StandardCharsets.UTF_8));
+    }
+
     private OrderCreatedEvent prepareOrderEvent(Order order) {
-        OrderCreatedEvent event = new OrderCreatedEvent();
-        event.setUserId(order.getUserId());
-        event.setOrderId(order.getId().toString());
-        event.setStatus(OrderStatus.PROCESSING);
-        event.setAmount(order.getAmount());
-        event.setPaymentMode(new Random().nextInt(2) == 1 ? PaymentMode.PAYPAL : PaymentMode.UPI);
-        event.setCreatedAt(order.getCreatedAt());
-        return event;
+        return OrderCreatedEvent
+                .builder()
+                .userId(order.getUserId())
+                .orderId(order.getId().toString())
+                .status(OrderStatus.PROCESSING)
+                .amount(order.getAmount())
+                .paymentMode(new Random().nextInt(2) == 1 ? PaymentMode.PAYPAL : PaymentMode.UPI)
+                .createdAt(order.getCreatedAt())
+                .build();
     }
 
 
