@@ -1,6 +1,6 @@
 package com.akash.orderservice.event.consumer;
 
-import com.akash.events.dto.PaymentCompletionEvent;
+import com.akash.dto.PaymentCompletionEvent;
 import com.akash.orderservice.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -15,8 +15,6 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class PaymentListener {
 
-    private static final String TOPIC = "PAYMENT_";
-    private static final String CORRELATION_ID_HEADER = "x-correlation-id";
     private final OrderService orderService;
 
     public PaymentListener(OrderService orderService) {

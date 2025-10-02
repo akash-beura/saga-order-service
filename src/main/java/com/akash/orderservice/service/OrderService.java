@@ -1,7 +1,7 @@
 package com.akash.orderservice.service;
 
-import com.akash.events.dto.PaymentCompletionEvent;
-import com.akash.events.dto.enums.PaymentStatus;
+import com.akash.dto.PaymentCompletionEvent;
+import com.akash.dto.enums.PaymentStatus;
 import com.akash.orderservice.dto.OrderRequest;
 import com.akash.orderservice.dto.OrderResponse;
 import com.akash.orderservice.event.producer.OrderProducer;

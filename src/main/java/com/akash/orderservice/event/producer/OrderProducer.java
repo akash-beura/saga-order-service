@@ -1,8 +1,8 @@
 package com.akash.orderservice.event.producer;
 
-import com.akash.events.dto.OrderCreatedEvent;
-import com.akash.events.dto.enums.OrderStatus;
-import com.akash.events.dto.enums.PaymentMode;
+import com.akash.dto.OrderCreatedEvent;
+import com.akash.dto.enums.OrderStatus;
+import com.akash.dto.enums.PaymentMode;
 import com.akash.orderservice.model.Order;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @Slf4j
 public class OrderProducer {
 
-    private static final String TOPIC = "order_created_event";
+    private static final String TOPIC = "ORDER_CREATED_TOPIC";
     private static final String CORRELATION_ID_HEADER = "x-correlation-id";
 
     private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;

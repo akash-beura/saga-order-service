@@ -1,6 +1,6 @@
 package com.akash.orderservice.config;
 
-import com.akash.events.dto.OrderCreatedEvent;
+import com.akash.dto.OrderCreatedEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
