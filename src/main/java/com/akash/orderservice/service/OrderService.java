@@ -1,5 +1,7 @@
 package com.akash.orderservice.service;
 
+import com.akash.events.dto.PaymentCompletionEvent;
+import com.akash.events.dto.enums.PaymentStatus;
 import com.akash.orderservice.dto.OrderRequest;
 import com.akash.orderservice.dto.OrderResponse;
 import com.akash.orderservice.event.producer.OrderProducer;
@@ -9,10 +11,10 @@ import com.akash.orderservice.model.Item;
 import com.akash.orderservice.model.Order;
 import com.akash.orderservice.model.OrderStatus;
 import com.akash.orderservice.repository.OrderRepository;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,13 +51,13 @@ public class OrderService {
         return orderMapper.toResponseList(orderRepository.findAll());
     }
 
-    public OrderResponse cancelOrder(String orderId) {
+    public void cancelOrder(String orderId) {
         Order order = orderRepository.findById(UUID.fromString(orderId))
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
         order.setStatus(OrderStatus.CANCELLED);
         order.setUpdatedAt(LocalDateTime.now());
         //TODO: Mock Initiate Refund
-        return orderMapper.toResponse(order);
+        orderMapper.toResponse(order);
     }
 
     private Order prepareOrder(OrderRequest orderRequest) {
@@ -71,6 +73,27 @@ public class OrderService {
                 .mapToDouble(Item::getItemPrice)
                 .sum());
         return order;
+    }
+
+    @Transactional
+    public void handlePaymentEvent(PaymentCompletionEvent event) {
+        Order order = orderRepository.findById(UUID.fromString(event.getOrderId()))
+                .orElseThrow(() -> new OrderNotFoundException(event.getOrderId()));
+        if (event.getPaymentStatus().equals(PaymentStatus.SUCCESS)) {
+            handlePaymentSuccess(event, order);
+        } else {
+            handlePaymentFailure(event, order);
+        }
+    }
+
+    private void handlePaymentFailure(PaymentCompletionEvent event, Order order) {
+        order.setStatus(OrderStatus.COMPLETED);
+        //TODO: Send Notification to user
+    }
+
+    private void handlePaymentSuccess(PaymentCompletionEvent event, Order order) {
+        order.setStatus(OrderStatus.FAILED);
+        //TODO: Send Notification to user
     }
 
 }
