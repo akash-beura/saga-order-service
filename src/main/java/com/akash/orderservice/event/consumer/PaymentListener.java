@@ -24,7 +24,7 @@ public class PaymentListener {
     @KafkaListener(
             topics = "PAYMENT_SUCCESS_TOPIC",
             groupId = "payment-processing-group",
-            containerFactory = "kafkaListenerContainerFactory"
+            containerFactory = "paymentCompletedKafkaListenerContainerFactory"
     )
     public void handlePaymentSuccessEvents(ConsumerRecord<String, PaymentCompletionEvent> record) {
         handleMDC(record.headers());

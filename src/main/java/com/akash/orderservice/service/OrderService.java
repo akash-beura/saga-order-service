@@ -77,23 +77,15 @@ public class OrderService {
 
     @Transactional
     public void handlePaymentEvent(PaymentCompletionEvent event) {
+        log.info("Payment event received: {}", event);
         Order order = orderRepository.findById(UUID.fromString(event.getOrderId()))
                 .orElseThrow(() -> new OrderNotFoundException(event.getOrderId()));
         if (event.getPaymentStatus().equals(PaymentStatus.SUCCESS)) {
-            handlePaymentSuccess(event, order);
+            order.setStatus(OrderStatus.COMPLETED);
         } else {
-            handlePaymentFailure(event, order);
+            order.setStatus(OrderStatus.FAILED);
         }
-    }
-
-    private void handlePaymentFailure(PaymentCompletionEvent event, Order order) {
-        order.setStatus(OrderStatus.COMPLETED);
-        //TODO: Send Notification to user
-    }
-
-    private void handlePaymentSuccess(PaymentCompletionEvent event, Order order) {
-        order.setStatus(OrderStatus.FAILED);
-        //TODO: Send Notification to user
+        orderRepository.save(order);
     }
 
 }
